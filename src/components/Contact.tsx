@@ -10,36 +10,60 @@ type ContactForm = {
   email: string;
   subject: string;
   message: string;
+  honey: string;
+};
+
+type SubmitStatus = "idle" | "sending" | "success" | "error";
+
+const initialForm: ContactForm = {
+  name: "",
+  email: "",
+  subject: "",
+  message: "",
+  honey: "",
 };
 
 export function Contact() {
-  const [form, setForm] = useState<ContactForm>({
-    name: "",
-    email: "",
-    subject: "",
-    message: "",
-  });
+  const [form, setForm] = useState<ContactForm>(initialForm);
+  const [status, setStatus] = useState<SubmitStatus>("idle");
+  const [statusMessage, setStatusMessage] = useState("");
 
   function updateField(field: keyof ContactForm, value: string) {
     setForm((currentForm) => ({ ...currentForm, [field]: value }));
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setStatus("sending");
+    setStatusMessage("");
 
-    const body = [
-      `Nome: ${form.name}`,
-      `E-mail: ${form.email}`,
-      "",
-      form.message,
-    ].join("\n");
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-    const mailtoUrl = `mailto:${contactEmail}?subject=${encodeURIComponent(
-      form.subject,
-    )}&body=${encodeURIComponent(body)}`;
+      const data = (await response.json()) as { error?: string };
 
-    window.location.href = mailtoUrl;
+      if (!response.ok) {
+        throw new Error(data.error ?? "Não foi possível enviar sua mensagem.");
+      }
+
+      setForm(initialForm);
+      setStatus("success");
+      setStatusMessage("Mensagem enviada com sucesso! Retornarei em breve.");
+    } catch (error) {
+      setStatus("error");
+      setStatusMessage(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível enviar sua mensagem agora.",
+      );
+    }
   }
+
+  const isSending = status === "sending";
 
   return (
     <section id="contato" className="px-4 py-20 sm:px-6 lg:px-8">
@@ -47,7 +71,7 @@ export function Contact() {
         <SectionHeader
           eyebrow="Contato"
           title="Vamos conversar sobre dados, BI e soluções digitais"
-          description="Preencha o formulário para abrir seu aplicativo de e-mail com a mensagem pronta para envio."
+          description="Preencha o formulário para enviar sua mensagem diretamente pela página."
         />
         <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
           <aside className="rounded-3xl border border-slate-200 bg-slate-950 p-8 text-white dark:border-white/10">
@@ -82,14 +106,23 @@ export function Contact() {
             onSubmit={handleSubmit}
             className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-white/10 dark:bg-slate-900"
           >
+            <input
+              tabIndex={-1}
+              autoComplete="off"
+              value={form.honey}
+              onChange={(event) => updateField("honey", event.target.value)}
+              className="hidden"
+              aria-hidden="true"
+            />
             <div className="grid gap-5 sm:grid-cols-2">
               <label className="grid gap-2 text-sm font-semibold">
                 Nome
                 <input
                   required
+                  disabled={isSending}
                   value={form.name}
                   onChange={(event) => updateField("name", event.target.value)}
-                  className="rounded-2xl border border-slate-200 bg-transparent px-4 py-3 outline-none focus:border-cyan-400 dark:border-white/10"
+                  className="rounded-2xl border border-slate-200 bg-transparent px-4 py-3 outline-none focus:border-cyan-400 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10"
                   placeholder="Seu nome"
                 />
               </label>
@@ -97,10 +130,11 @@ export function Contact() {
                 E-mail
                 <input
                   required
+                  disabled={isSending}
                   type="email"
                   value={form.email}
                   onChange={(event) => updateField("email", event.target.value)}
-                  className="rounded-2xl border border-slate-200 bg-transparent px-4 py-3 outline-none focus:border-cyan-400 dark:border-white/10"
+                  className="rounded-2xl border border-slate-200 bg-transparent px-4 py-3 outline-none focus:border-cyan-400 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10"
                   placeholder="seu@email.com"
                 />
               </label>
@@ -109,9 +143,10 @@ export function Contact() {
               Assunto
               <input
                 required
+                disabled={isSending}
                 value={form.subject}
                 onChange={(event) => updateField("subject", event.target.value)}
-                className="rounded-2xl border border-slate-200 bg-transparent px-4 py-3 outline-none focus:border-cyan-400 dark:border-white/10"
+                className="rounded-2xl border border-slate-200 bg-transparent px-4 py-3 outline-none focus:border-cyan-400 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10"
                 placeholder="Projeto, oportunidade ou parceria"
               />
             </label>
@@ -119,19 +154,30 @@ export function Contact() {
               Mensagem
               <textarea
                 required
+                disabled={isSending}
                 rows={5}
                 value={form.message}
                 onChange={(event) => updateField("message", event.target.value)}
-                className="rounded-2xl border border-slate-200 bg-transparent px-4 py-3 outline-none focus:border-cyan-400 dark:border-white/10"
+                className="rounded-2xl border border-slate-200 bg-transparent px-4 py-3 outline-none focus:border-cyan-400 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10"
                 placeholder="Conte brevemente como posso ajudar"
               />
             </label>
             <button
               type="submit"
-              className="mt-6 rounded-full bg-cyan-500 px-7 py-3 font-bold text-slate-950 transition hover:bg-cyan-400"
+              disabled={isSending}
+              className="mt-6 rounded-full bg-cyan-500 px-7 py-3 font-bold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              Enviar mensagem
+              {isSending ? "Enviando..." : "Enviar mensagem"}
             </button>
+            {statusMessage ? (
+              <p
+                className={`mt-4 text-sm font-semibold ${
+                  status === "success" ? "text-emerald-600" : "text-red-500"
+                }`}
+              >
+                {statusMessage}
+              </p>
+            ) : null}
           </form>
         </div>
       </div>
