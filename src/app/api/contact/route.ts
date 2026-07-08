@@ -1,5 +1,8 @@
-const contactEmail = "ezequieldbruno@gmail.com";
-const formSubmitEndpoint = `https://formsubmit.co/ajax/${contactEmail}`;
+const contactEmail = process.env.CONTACT_TO_EMAIL ?? "ezequieldbruno@gmail.com";
+const resendApiKey = process.env.RESEND_API_KEY;
+const resendFromEmail =
+  process.env.CONTACT_FROM_EMAIL ?? "Portfólio <onboarding@resend.dev>";
+const resendEndpoint = "https://api.resend.com/emails";
 
 type ContactRequest = {
   name?: string;
@@ -18,6 +21,15 @@ function hasRequiredFields(data: ContactRequest) {
   );
 }
 
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 export async function POST(request: Request) {
   const data = (await request.json()) as ContactRequest;
 
@@ -32,26 +44,55 @@ export async function POST(request: Request) {
     );
   }
 
-  const response = await fetch(formSubmitEndpoint, {
+  if (!resendApiKey) {
+    return Response.json(
+      {
+        error:
+          "Envio de e-mail não configurado. Defina RESEND_API_KEY nas variáveis de ambiente.",
+      },
+      { status: 500 },
+    );
+  }
+
+  const name = data.name!.trim();
+  const email = data.email!.trim();
+  const subject = data.subject!.trim();
+  const message = data.message!.trim();
+
+  const response = await fetch(resendEndpoint, {
     method: "POST",
     headers: {
-      Accept: "application/json",
+      Authorization: `Bearer ${resendApiKey}`,
       "Content-Type": "application/json",
+      "User-Agent": "portfolio-contact-form/1.0",
     },
     body: JSON.stringify({
-      name: data.name,
-      email: data.email,
-      subject: data.subject,
-      message: data.message,
-      _subject: `Novo contato pelo portfólio: ${data.subject}`,
-      _template: "table",
-      _captcha: "false",
+      from: resendFromEmail,
+      to: [contactEmail],
+      reply_to: email,
+      subject: `Novo contato pelo portfólio: ${subject}`,
+      html: `
+        <h2>Novo contato pelo portfólio</h2>
+        <p><strong>Nome:</strong> ${escapeHtml(name)}</p>
+        <p><strong>E-mail:</strong> ${escapeHtml(email)}</p>
+        <p><strong>Assunto:</strong> ${escapeHtml(subject)}</p>
+        <p><strong>Mensagem:</strong></p>
+        <p>${escapeHtml(message).replaceAll("\n", "<br />")}</p>
+      `,
+      text: `Novo contato pelo portfólio\n\nNome: ${name}\nE-mail: ${email}\nAssunto: ${subject}\n\nMensagem:\n${message}`,
     }),
   });
 
   if (!response.ok) {
+    const resendError = (await response.json().catch(() => null)) as {
+      message?: string;
+    } | null;
+
     return Response.json(
-      { error: "Não foi possível enviar sua mensagem agora." },
+      {
+        error:
+          resendError?.message ?? "Não foi possível enviar sua mensagem agora.",
+      },
       { status: response.status },
     );
   }
