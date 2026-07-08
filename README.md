@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portfólio profissional — Ezequiel Bruno
 
-## Getting Started
+Portfólio em Next.js, TypeScript e Tailwind CSS para apresentar projetos de dados industriais, Power BI, Excel, qualidade, melhoria contínua, Oracle Fusion ERP, BI Publisher, OTBI, SQL, automações, dashboards e desenvolvimento web.
 
-First, run the development server:
+## Como rodar
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Acesse `http://localhost:3000` no navegador.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts disponíveis
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `npm run dev`: inicia o ambiente de desenvolvimento.
+- `npm run build`: gera a versão de produção.
+- `npm run start`: executa a build de produção.
+- `npm run lint`: roda o ESLint.
 
-## Learn More
+## Estrutura principal
 
-To learn more about Next.js, take a look at the following resources:
+- `src/app/page.tsx`: composição das seções da página.
+- `src/app/layout.tsx`: metadados SEO e layout raiz.
+- `src/app/globals.css`: tema base, Tailwind CSS e animações.
+- `src/data/portfolioData.ts`: conteúdo editável do portfólio.
+- `src/components/`: componentes reutilizáveis.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Personalização
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Edite `src/data/portfolioData.ts` para alterar projetos, habilidades, serviços, processo e experiência. Os links de LinkedIn, GitHub, WhatsApp e e-mail estão em `src/components/Contact.tsx` como placeholders para edição futura.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+> Observação: todos os projetos foram descritos com dados fictícios, genéricos ou anonimizados para evitar exposição de informações confidenciais.
