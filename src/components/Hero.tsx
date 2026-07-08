@@ -18,7 +18,7 @@ export function Hero() {
           <div className="overflow-hidden rounded-[1.5rem] bg-slate-950 text-white">
             <div className="relative min-h-[520px]">
               <Image
-                src="/ezequiel-bruno.jpg"
+                src="/FotoProfissional.jpeg"
                 alt="Foto de Ezequiel Bruno"
                 fill
                 priority
