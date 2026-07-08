@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export function Hero() {
   return (
     <section id="inicio" className="relative overflow-hidden px-4 pb-20 pt-36 sm:px-6 lg:px-8">
@@ -13,13 +15,24 @@ export function Hero() {
           </div>
         </div>
         <div className="rounded-[2rem] border border-slate-200 bg-white/70 p-5 shadow-2xl shadow-slate-200/70 backdrop-blur dark:border-white/10 dark:bg-slate-900/60 dark:shadow-black/30">
-          <div className="rounded-[1.5rem] bg-slate-950 p-6 text-white">
-            <div className="mb-6 flex gap-2"><span className="h-3 w-3 rounded-full bg-red-400" /><span className="h-3 w-3 rounded-full bg-yellow-400" /><span className="h-3 w-3 rounded-full bg-green-400" /></div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {["Aprovação", "FTQ", "Produtividade", "Tendência"].map((metric, index) => <div key={metric} className="rounded-2xl border border-white/10 bg-white/5 p-4"><p className="text-sm text-slate-400">{metric}</p><p className="mt-2 text-3xl font-bold text-cyan-300">{index === 0 ? "96%" : index === 1 ? "91%" : index === 2 ? "+18%" : "↑"}</p></div>)}
-            </div>
-            <div className="mt-6 h-32 rounded-2xl border border-cyan-300/20 bg-[linear-gradient(135deg,rgba(34,211,238,.16),rgba(16,185,129,.08))] p-4" aria-label="Ilustração de dashboard industrial">
-              <div className="flex h-full items-end gap-3">{[45, 72, 54, 86, 63, 95, 78].map((height) => <span key={height} className="flex-1 rounded-t bg-cyan-300/80" style={{ height: `${height}%` }} />)}</div>
+          <div className="overflow-hidden rounded-[1.5rem] bg-slate-950 text-white">
+            <div className="relative min-h-[520px]">
+              <Image
+                src="/ezequiel-bruno.jpg"
+                alt="Foto de Ezequiel Bruno"
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 45vw"
+                className="object-cover object-[center_28%]"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/10 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">Ezequiel Bruno</p>
+                <p className="mt-3 text-2xl font-black">Dados, qualidade e melhoria contínua com foco em resultados reais.</p>
+                <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                  {["BI", "Qualidade", "Indústria"].map((item) => <span key={item} className="rounded-full border border-white/15 bg-white/10 px-4 py-2 text-center text-sm font-semibold backdrop-blur">{item}</span>)}
+                </div>
+              </div>
             </div>
           </div>
         </div>
